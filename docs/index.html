@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>GW skymaps</title>
+    <link rel="stylesheet" href="./css/style.css">
+
+    <!-- Aladin Lite JS code and CSS -->
+    <!-- Recommendation for users smartphone/tablets users -->
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="https://aladin.cds.unistra.fr/AladinLite/api/v3/latest/aladin.js"
+        charset="utf-8"></script>
+
+    <!-- run mocswam -->
+    <script type="module">
+        //import init, * as moc from '../scripts/pkg/moc.js';
+        import init, * as moc from './scripts/pkg/moc.js';
+        async function run() {
+            const wasm = await init().catch(console.error);
+            window.moc = moc;
+        }
+        run();
+    </script>
+
+    <!-- webpage initialization -->
+    <script src="scripts/webpage-init.js"> </script>
+
+</head>
+
+<body>
+
+    <!-- cookie banner -->
+    <div id="cookieNotice" class="cookie-banner">
+        <div id="closeIcon" style="display: none;">
+        </div>
+
+        <h4>Cookie Consent</h4>
+        <div>
+            <div>
+                <p>
+                    This website uses only strictly necessary cookies for allowing core website
+                    functionality. <br></br>
+                    <span style="font-size: 12px;">
+                        <a href="https://home.infn.it/en/privacy">View our Privacy Policy</a>
+                </p>
+                <div>
+                    <button class="button-alert" onclick="acceptCookieConsent();">Accept</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/cookie_consent.js"> </script>
+
+    <script type="text/javascript">
+        let aladin;
+        A.init.then(() => {
+            // Initialize Aladin with necessary configurations
+            aladin = A.aladin('#aladin-lite-div', {
+                survey: 'P/DSS2/color',  // Use your desired survey
+                fov: 360,                // Set the FoV to 360 degrees for the entire sky
+                fullScreen: false,       // Disable fullscreen mode
+                cooFrame: 'ICRS',         // Use the ICRS coordinate system
+                target: '180 0',
+            });
+
+            // Set the projection to 'MOL' to display the entire sky in MOL projection
+            aladin.setProjection('MOL');
+
+            // Optionally, you can set the FoV range, though for an all-sky view, a FoV of 360 should be sufficient
+            //aladin.setFovRange(0.3, 30);  // If needed for zoom range control
+
+            // If you want to manually adjust the FoV after initialization
+            aladin.setFov(360);           // Again, set the FoV to 360 to see the entire sky
+        });
+    </script>
+
+    <!-- Navbar (sit on top) -->
+    <script src="scripts/fullscreen-navbar-handler.js"></script>
+
+    <div class="w3-top" style="z-index:10" id="navbar">
+        <ul class="w3-navbar w3-teal w3-wide w3-padding-8 w3-card-2">
+            <li>
+                <a class="w3-left"><b>
+                        GWsky: Online Calculator and Interactive Viewer of Credible Areas
+                    </b></a>
+
+                <div style="
+        margin-top:14px;
+        font-size:12px;
+        color:#1f4d2e;
+    ">
+                    <span style="
+            background:#dff5e1;
+            color:#1f4d2e;
+            padding:3px 6px;
+            border-radius:4px;
+            font-weight:500;
+        ">
+                        ⚠ This is a development version maintained by Giuseppe Greco.
+                    </span>
+
+                    <a href="mailto:giuseppe.greco@uniurb.it" title="Contact developer" style="
+                margin-left:10px;
+                font-size:14px;
+                color:#1f4d2e;
+                text-decoration:none;
+                background:#cfead4;
+                padding:3px 6px;
+                border-radius:4px;
+                font-weight:500;
+                display:inline-block;
+                vertical-align:middle;
+           ">
+                        ✉ Email
+                    </a>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+
+    <!-- Page content -->
+    <div class="w3-content w3-theme-l5 w3-border-grey w3-bottombar" style="max-width:1564px" id="home">
+        <div class="w3-container w3-padding" style="margin-top:60px">
+
+            <!-- Info -->
+            <div class="w3-container w3-padding-0">
+                <p class="w3-padding-right">The tool provides the credible areas of gravitational-wave sky
+                    localizations issued by the <a href="https://emfollow.docs.ligo.org/userguide/"
+                        target="_blank">LIGO-Virgo-KAGRA collaborations (LVK)</a>.
+                    The resulting credible area is encoded with the data-structures
+                    <a href="https://ivoa.net/documents/MOC/" target="_blank">Multi Order Coverage map (MOC)</a>.
+                    MOC is a Virtual Observatory standard approved by the
+                    <a href="https://ivoa.net/" target="_blank">IVOA (International Virtual Observatory Alliance)</a> to
+                    manage sky coverage. Each MOC is visualized in the <a href="https://aladin.u-strasbg.fr/AladinLite/"
+                        target="_blank">Aladin Lite</a>
+                    with various background image surveyes. The whole list and the image surveys are accessible
+                    by clicking the icon <img class="imgA1" src="./ima/ico_manage_layers.png" height=18px width=auto>
+                    manage layers located at the top left.
+                    The MOC maps are created and manipulated with the WebAssembly library
+                    <a href="https://projectescape.eu/sites/default/files/ADASS%20Conference%202021%20-%20MOCLibRust%20a%20common%20library%20for%20MOCPy%2C%20MOCCli%20and%20MOCWasm_0.pdf"
+                        target="_blank">MOCWasm</a>.
+
+                    <!-- Aladin and methods conteiners -->
+                    <!-- <div class="w3-container w3-padding-0 w3-border-grey w3-half">  -->
+
+            </div>
+            <div class="w3-row">
+                <div class="w3-half w3-container w3-padding-0 w3-dark-grey">
+                    <div id="aladin-lite-div" style="width:100%;height:425px;z-index:1"></div>
+
+                    <div class="tab-noshadow">
+
+                        <!-- INFO MOC LOCAL COLLAPSIBLE -->
+                        <div class="w3-container w3-dark-grey"
+                            style="display: flex; align-items: center; font-size: 0.9em; padding: 6px; cursor: pointer;">
+                            <h6 id="infoLocalTitle" class="label-info" style="margin: 0; flex-grow: 1;"
+                                onclick="toggleCollapsible(this, 'infoLocal')">
+                                <span class="arrow">🔽</span> Info MOC coverage (My device)
+                            </h6>
+
+                            <span class="moc-bullet" id="infoLocalColor"></span>
+                        </div>
+
+                        <div id="infoLocal" class="w3-container w3-light-grey w3-padding-small w3-small"
+                            style="display: block;">
+                            <!-- JS code-->
+                        </div>
+
+
+                        <!-- INFO MOC URL COLLAPSIBLE -->
+                        <div class="w3-container w3-dark-grey"
+                            style="display: flex; align-items: center; margin-top: 0.5em; padding: 6px; font-size: 0.9em;">
+                            <h6 id="infoUrlTitle" class="label-info" style="margin: 0; flex-grow: 1;"
+                                onclick="toggleCollapsible(this, 'infoUrl')">
+                                <span class="arrow">🔽</span> Info MOC coverage (GraceDB)
+                            </h6>
+
+                            <span class="moc-bullet" id="infoUrlColor"></span>
+                        </div>
+
+                        <div id="infoUrl" class="w3-container w3-light-grey w3-padding-small w3-small"
+                            style="display: block;">
+                            <!-- JS code -->
+                        </div>
+
+
+                        <!-- INFO MOC CATALOG COLLAPSIBLE -->
+                        <div class="w3-container w3-dark-grey"
+                            style="display: flex; align-items: center; margin-top: 0.5em; padding: 6px; font-size: 0.9em;">
+                            <h6 id="infoCatalogTitle" class="label-info" style="margin: 0; flex-grow: 1;"
+                                onclick="toggleCollapsible(this, 'infoCatalog')">
+                                <span class="arrow">🔽</span> Info MOC coverage (Catalogs)
+                            </h6>
+                            <span class="moc-bullet" id="infoCatalogColor"></span>
+                        </div>
+
+                        <div id="infoCatalog" class="w3-container w3-light-grey w3-padding-small w3-small"
+                            style="display: block;">
+                            <!-- JS injected content -->
+                        </div>
+
+                        <!-- INFO MOC ALERT COLLAPSIBLE -->
+                        <div class="w3-container w3-dark-grey"
+                            style="display: flex; align-items: center; margin-top: 0.5em; padding: 6px; font-size: 0.9em;">
+                            <h6 id="infoAlertTitle" class="label-info" style="margin: 0; flex-grow: 1;"
+                                onclick="toggleCollapsible(this, 'infoAlert')">
+                                <span class="arrow">🔽</span> Info MOC coverage (Alerts)
+                            </h6>
+                            <span class="moc-bullet" id="infoAlertColor"></span>
+                        </div>
+
+                        <div id="infoAlert" class="w3-container w3-light-grey w3-padding-small w3-small"
+                            style="display: block;">
+                            <!-- JS injected -->
+                        </div>
+
+                        <!-- INFO MOC OPERATIONS COLLAPSIBLE -->
+                        <div class="w3-container w3-dark-grey"
+                            style="display: flex; align-items: center; margin-top: 0.5em; padding: 6px; font-size: 0.5em;">
+                            <h6 id="infoOperationTitle" class="label-info" style="margin: 0; flex-grow: 1;"
+                                onclick="toggleCollapsible(this, 'infoOperation')">
+                                <span class="arrow">🔽</span> Info MOC coverage (Operations)
+                            </h6>
+                            <span class="moc-bullet" id="infoOperationColor"></span>
+                        </div>
+
+                        <div id="infoOperation" class="w3-container w3-light-grey w3-padding-small w3-small"
+                            style="display: block;">
+                            <!-- JS code -->
+                        </div>
+
+                        <!-- Save fits button -->
+                        <!--                       <button class="button" id="fitsLocal" onclick="saveFITS()">Save .fits</button> -->
+                    </div>
+                </div>
+
+                <div class="w3-half w3-container" style="max-width:100%">
+                    <div class="tab">
+                        <script src="scripts/open-skymap.js"> </script>
+                        <script src="scripts/read-file.js"> </script>
+
+                        <p class="label"> Load a gravitational-wave sky localization from:</p>
+
+                        <button class="w3-third tablinks" data-toggle="tooltip"
+                            title="Insert a local file of probability sky maps" onclick="openSkymap(event, 'local')">My
+                            device</button>
+
+                        <button class="w3-third tablinks" data-toggle="tooltip"
+                            title="Insert a valid URL from the GraceDB database"
+                            onclick="openSkymap(event, 'web')">GraceDB </button>
+
+                        <button class="w3-third tablinks" data-toggle="tooltip"
+                            title="Select an gravitational-wave event from LIGO-Virgo-KAGRA transient catalogs"
+                            onclick="openSkymap(event, 'transient_catalogs')">Catalogs</button>
+
+                        <button class="w3-third tablinks" data-toggle="tooltip"
+                            title="Select a candidate event from LIGO-Virgo-KAGRA alerts"
+                            onclick="openSkymap(event, 'low_latency')">Alerts</button>
+
+                        <button class="w3-third tablinks" data-toggle="tooltip" title="For internal usage"
+                            onclick="openSkymap(event, '')">Login </button>
+
+                        <!-- <button class="w3-third tablinks  w3-margin-bottom" data-toggle="tooltip"
+                            title="Close the selected tab" onclick="openSkymap(event, 'low_latency')">Close </button> -->
+
+                        <button class="w3-third tablinks w3-margin-bottom" onclick="closeAllTabs()">Close</button>
+
+
+                        <!-- Local file -->
+                        <div>
+
+                            <div id="local" class="tabcontent">
+
+                                <div onclick="this.parentElement.style.display='none'" class="topright">&times</div>
+
+                                <div class="w3-label w3-margin-top">
+                                    <bf>1.</bf> Load or Drag&Drop file upload:
+                                </div>
+
+                                <div class="upload-container w3-left-align w3-container ">
+
+                                    <div>
+                                        <input type="file" id="FITSfile" accept="*" onchange="FITSfile()" />
+                                    </div>
+                                </div>
+
+                                <div class="w3-label w3-margin-top"> 2. MOC identification name (avoid duplicate names):
+                                </div>
+                                <div class="w3-container">
+                                    <input class="w3-input " type="text" placeholder="My plane" id="id_plane_local"
+                                        name="id_plane_local" value="My plane" required>
+
+                                </div>
+
+                                <div class="w3-label w3-margin-top "> 3. Choose a credible level and press the button:
+                                </div>
+                                <div class="number-input  w3-third w3-container">
+
+                                    <button class="button"
+                                        onclick="this.parentNode.querySelector('input[type=number]').stepDown()">-</button>
+
+                                    <input type="number" id="quantity" name="credibility" class="quantity" min="0.0"
+                                        max="1.0" value="0.9" step="0.05">
+
+                                    <button class="button"
+                                        onclick="this.parentNode.querySelector('input[type=number]').stepUp()">+</button>
+
+                                </div>
+
+                                <script src="scripts/viewerLocal.js"></script>
+
+                                <div class="w3-container">
+                                    <button class="button  w3-margin-right w3-margin-bottom" id="doLocal"
+                                        onclick="fromLocal()">Display Credible Area</button>
+
+                                    <!--    <button class="collapsible">⚙️ Display setting</button>
+      <div class="content">
+          <div class="w3-margin-top" style="margin-bottom: 1em;">
+            <br><br>
+              By default, the adaptive display is turned off and the resolution of the displayed MOC is not degraded for large field of views.
+              The adaptive display is helpful when you want to manage multiple plans at the same time and it can be turned on
+          </div>
+
+          <label class="switch w3-margin-bottom">
+              <input type="checkbox" id="myCheck" onclick="myCheck()">
+              <span class="slider round"></span>
+          </label>
+          <p class="label-setting-activated w3-margin-bottom" id="text" style="display:none">
+              The adaptive display has been activated! The resolution of the displayed MOC will be degraded for large field of views.
+                <br><br>
+          </p>
+      </div> -->
+
+                                    <script>
+                                        var coll = document.getElementsByClassName("collapsible");
+                                        for (var i = 0; i < coll.length; i++) {
+                                            coll[i].addEventListener("click", function () {
+                                                this.classList.toggle("active");
+                                                var content = this.nextElementSibling;
+                                                if (content.style.maxHeight) {
+                                                    content.style.maxHeight = null;
+                                                } else {
+                                                    content.style.maxHeight = content.scrollHeight + "px";
+                                                }
+                                            });
+                                        }
+
+                                        function myCheck() {
+                                            var checkBox = document.getElementById("myCheck");
+                                            var text = document.getElementById("text");
+                                            var content = checkBox.closest(".content");
+
+                                            if (checkBox.checked) {
+                                                text.style.display = "block";
+                                                // Aggiorna maxHeight dopo visualizzazione del testo
+                                                content.style.maxHeight = content.scrollHeight + "px";
+                                            } else {
+                                                text.style.display = "none";
+                                                // Riduci maxHeight (può restare anche aperto se serve)
+                                                content.style.maxHeight = content.scrollHeight + "px";
+                                            }
+                                        }
+
+                                    </script>
+
+                                </div>
+                                <!-- <label  for="credibility_url" class="label">Choose a credible level ([0..1]):</label> -->
+
+                            </div>
+                        </div>
+
+                        <!-- File from URL -->
+
+                        <div class="tabcontent" id="web">
+                            <div onclick="this.parentElement.style.display='none'" class="topright">&times</div>
+
+                            <div class="w3-label w3-margin-top">
+
+                                <bf>1.</bf> Insert a valid URL from GraceDB:
+                            </div>
+
+                            <div class="w3-container">
+                                <input class="w3-input " type="url" name="url" id="url"
+                                    placeholder="https://gracedb.ligo.org/..." pattern="https://.*"
+                                    onfocus="this.value=''" required>
+
+                            </div>
+
+                            <div class="w3-label w3-margin-top"> 2. MOC identification name (avoid duplicate names):
+                            </div>
+                            <div class="w3-container">
+                                <input class="w3-input" type="text" placeholder="GraceDB" id="id_plane_url"
+                                    name="id_plane_url" value="GraceDB" required>
+                            </div>
+
+                            <div class="w3-label w3-margin-top "> 3. Choose a credible level and press the button:
+                            </div>
+                            <div class="number-input  w3-third w3-container">
+
+                                <button class="button"
+                                    onclick="this.parentNode.querySelector('input[type=number]').stepDown()">-</button>
+                                <input type="number" id="quantity_url" name="credibility_url" class="quantity_url"
+                                    min="0.0" max="1.0" value="0.9" step="0.05">
+
+                                <button class="button"
+                                    onclick="this.parentNode.querySelector('input[type=number]').stepUp()">+</button>
+
+                            </div>
+
+
+                            <div class="w3-container">
+                                <button class="button" id="doURL" onclick="fromURL()">Display Credible Area</button>
+
+                                <!--  <button class="button" id="fitsUrl" onclick="saveFitsUrl()" >Save .fits</button> -->
+
+                            </div>
+                        </div>
+
+                        <!-- Dropdown catalogs -->
+
+                        <div class="tabcontent" id="transient_catalogs">
+                            <div onclick="this.parentElement.style.display='none'" class="topright">&times</div>
+                            <div class="w3-label w3-margin-top">
+                                <bf>1.</bf> Selection from GWTCs
+                            </div>
+
+
+                            <div class="w3-label w3-margin-top">
+                                <select class="selection" name="catalog" id="catalog">
+                                    <option value="">Select catalog</option>
+                                </select>
+
+                                <select class="selection" name="event" id="event">
+                                    <option value="">Select event</option>
+                                </select>
+
+                                <select class="selection" name="analysis" id="analysis">
+                                    <option value="">Select analysis</option>
+                                </select>
+                            </div>
+
+                            <div class="w3-label w3-margin-top"> 2. MOC identification name (avoid duplicate names):
+                            </div>
+
+                            <div class="w3-container">
+                                <input class="w3-input" type="text" placeholder="My plane" id="id_plane_catalog"
+                                    name="id_plane_catalog" value="My plane" require>
+                            </div>
+
+                            <div class="w3-label w3-margin-top "> 3. Choose a credible level and press the button:
+                            </div>
+                            <div class="number-input  w3-third w3-container">
+
+                                <button
+                                    onclick="this.parentNode.querySelector('input[type=number]').stepDown()">-</button>
+                                <input type="number" id="quantity_catalog" name="credibility_catalog"
+                                    class="quantity_catalog" min="0.0" max="1.0" value="0.9" step="0.05">
+                                <button
+                                    onclick="this.parentNode.querySelector('input[type=number]').stepUp()">+</button>
+                            </div>
+
+                            <div class="w3-container">
+                                <button class="button" id="doCatalog" onclick="fromCatalog()">Display Credible
+                                    Area</button>
+                            </div>
+
+                            <!-- <button class="button" id="fitsCatalog" onclick="saveFitsCatalog()" >Save .fits</button>
+    <br>
+    <p class="label-info" id="infoCatalog">Info MOC Coverage.</p> -->
+
+                        </div>
+
+                        <!-- Dropdown Alerts -->
+
+                        <!-- LVK Alerts (Low Latency) -->
+                        <div class="tabcontent" id="low_latency">
+                            <div onclick="this.parentElement.style.display='none'" class="topright">&times</div>
+                            <div class="w3-label w3-margin-top">
+                                <bf>1.</bf> Selection from LVK alerts
+                            </div>
+
+
+
+                            <div class="w3-label w3-margin-top">
+                                <select class="selection" name="run" id="run">
+                                    <option value="">Select run</option>
+                                </select>
+
+                                <select class="selection" name="alert" id="alert">
+                                    <option value="">Select alert</option>
+                                </select>
+
+                                <select class="selection" name="notice" id="notice">
+                                    <option value="">Select notice</option>
+                                </select>
+                            </div>
+
+                            <div class="w3-label w3-margin-top">2. MOC identification name (avoid duplicate names):
+                            </div>
+                            <div class="w3-container">
+                                <input class="w3-input" type="text" placeholder="My plane" id="id_plane_alert"
+                                    name="id_plane_alert" value="My plane" required>
+                            </div>
+
+                            <div class="w3-label w3-margin-top">3. Choose a credible level and press the button:</div>
+                            <div class="number-input w3-third w3-container">
+                                <button
+                                    onclick="this.parentNode.querySelector('input[type=number]').stepDown()">-</button>
+                                <input type="number" id="quantity_alert" name="credibility_alert" class="quantity_alert"
+                                    min="0.0" max="1.0" value="0.9" step="0.05">
+                                <button
+                                    onclick="this.parentNode.querySelector('input[type=number]').stepUp()">+</button>
+                            </div>
+
+                            <div class="w3-container">
+                                <button class="button" id="doAlert" onclick="fromAlert()">Display Credible Area</button>
+                                <!--    <button class="button" id="fitsAlert" onclick="saveFitsAlert()">Save .fits</button> -->
+                            </div>
+
+                        </div>
+
+                        <!-- last tab div -->
+                    </div>
+                </div>
+                <!-- last tab div -->
+
+                <!-- Drawing -->
+
+                <div class="w3-half w3-container" style="max-width:100%">
+                    <div class="tab">
+                        <script src="scripts/open-skymap.js"> </script>
+                        <script src="scripts/read-file.js"> </script>
+
+                        <!-- Right: Interface Panels -->
+                        <p class="label"><strong>Draw MOC sky regions:</strong></p>
+
+                        <div class="w3-row">
+                            <button class="w3-third tablinks" onclick="openSkymap(event, 'draw_box')">Box</button>
+                            <button class="w3-third tablinks" onclick="openSkymap(event, 'draw_circle')">Circle</button>
+                            <button class="w3-third tablinks"
+                                onclick="openSkymap(event, 'draw_ellipse')">Ellipse</button>
+                            <button class="w3-third tablinks" onclick="openSkymap(event, 'draw_ring')">Ring</button>
+                            <button class="w3-third tablinks" onclick="openSkymap(event, 'draw_zone')">Zone</button>
+                            <button class="w3-third tablinks" onclick="closeAllTabs()">Close</button>
+                        </div>
+
+                        <!-- TAB CONTENT: BOX -->
+                        <div id="draw_box" class="tabcontent w3-container w3-label" style="display:none; padding: 1em;">
+                            <div onclick="this.parentElement.style.display='none'" class="topright"
+                                style="cursor:pointer; color: white;">&times;</div>
+                            <p class="label w3-text-white"><strong>Draw rectangular region (Box)</strong></p>
+
+                            <label for="ra_box">RA (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="ra_box" placeholder="e.g. 120.5">
+
+                            <label for="dec_box">DEC (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="dec_box"
+                                placeholder="e.g. -45.2">
+
+                            <label for="width_box">Width (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="width_box" placeholder="e.g. 5">
+
+                            <label for="height_box">Height (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="height_box" placeholder="e.g. 3">
+
+                            <label for="angle_box">Rotation angle (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="angle_box" value="0"
+                                placeholder="e.g. 45">
+
+                            <label for="id_box">MOC identification name:</label>
+                            <input class="w3-input w3-margin-bottom" type="text" id="id_box" value="MyBox">
+
+                            <button class="button w3-margin-top" onclick="drawBox()">Draw Box</button>
+
+                        </div>
+                        <!-- TAB CONTENT: CIRCLE -->
+                        <div id="draw_circle" class="tabcontent w3-container w3-label"
+                            style="display:none; padding: 1em;">
+                            <div onclick="this.parentElement.style.display='none'" class="topright"
+                                style="cursor:pointer; color: white;">&times;</div>
+                            <p class="label w3-text-white"><strong>Draw circular region (Circle)</strong></p>
+
+                            <label for="ra_circle">RA (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="ra_circle"
+                                placeholder="e.g. 120.5">
+
+                            <label for="dec_circle">DEC (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="dec_circle"
+                                placeholder="e.g. -45.2">
+
+                            <label for="radius_circle">Radius (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="radius_circle"
+                                placeholder="e.g. 5">
+
+                            <label for="id_circle">MOC identification name:</label>
+                            <input class="w3-input w3-margin-bottom" type="text" id="id_circle" value="MyCircle">
+
+                            <button class="button w3-margin-top" onclick="drawCircle()">Draw Circle</button>
+                        </div>
+
+                        <!-- TAB CONTENT: ELLIPSE -->
+                        <div id="draw_ellipse" class="tabcontent w3-container w3-label"
+                            style="display:none; padding: 1em;">
+                            <div onclick="this.parentElement.style.display='none'" class="topright"
+                                style="cursor:pointer; color: white;">&times;</div>
+                            <p class="label w3-text-white"><strong>Draw elliptical region (Ellipse)</strong></p>
+
+                            <label for="ra_ellipse">RA (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="ra_ellipse"
+                                placeholder="e.g. 130.5">
+
+                            <label for="dec_ellipse">DEC (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="dec_ellipse"
+                                placeholder="e.g. -30.1">
+
+                            <label for="semi_major">Semi-major axis (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="semi_major" placeholder="e.g. 4">
+
+                            <label for="semi_minor">Semi-minor axis (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="semi_minor" placeholder="e.g. 2">
+
+                            <label for="angle_ellipse">Rotation angle (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="angle_ellipse" value="0"
+                                placeholder="e.g. 30">
+
+                            <label for="id_ellipse">MOC identification name:</label>
+                            <input class="w3-input w3-margin-bottom" type="text" id="id_ellipse" value="MyEllipse">
+
+                            <button class="button w3-margin-top" onclick="drawEllipse()">Draw Ellipse</button>
+                        </div>
+
+                        <!-- TAB CONTENT: RING -->
+                        <div id="draw_ring" class="tabcontent w3-container w3-label"
+                            style="display:none; padding: 1em;">
+                            <div onclick="this.parentElement.style.display='none'" class="topright"
+                                style="cursor:pointer; color: white;">&times;</div>
+                            <p class="label w3-text-white"><strong>Draw ring region (Ring)</strong></p>
+
+                            <label for="ra_ring">RA (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="ra_ring"
+                                placeholder="e.g. 150.0">
+
+                            <label for="dec_ring">DEC (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="dec_ring"
+                                placeholder="e.g. -20.0">
+
+                            <label for="internal_radius">Internal radius (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="internal_radius"
+                                placeholder="e.g. 1.0">
+
+                            <label for="external_radius">External radius (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="external_radius"
+                                placeholder="e.g. 3.0">
+
+                            <label for="id_ring">MOC identification name:</label>
+                            <input class="w3-input w3-margin-bottom" type="text" id="id_ring" value="MyRing">
+
+                            <button class="button w3-margin-top" onclick="drawRing()">Draw Ring</button>
+                        </div>
+
+                        <!-- TAB CONTENT: ZONE -->
+                        <div id="draw_zone" class="tabcontent w3-container w3-label"
+                            style="display:none; padding: 1em;">
+                            <div onclick="this.parentElement.style.display='none'" class="topright"
+                                style="cursor:pointer; color: white;">&times;</div>
+                            <p class="label w3-text-white"><strong>Draw zone region (Zone)</strong></p>
+
+                            <label for="ra_min">RA Min (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="ra_min" placeholder="e.g. 100.0">
+
+                            <label for="dec_min">DEC Min (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="dec_min"
+                                placeholder="e.g. -40.0">
+
+                            <label for="ra_max">RA Max (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="ra_max" placeholder="e.g. 160.0">
+
+                            <label for="dec_max">DEC Max (deg):</label>
+                            <input class="w3-input w3-margin-bottom" type="number" id="dec_max" placeholder="e.g. 10.0">
+
+                            <label for="id_zone">MOC identification name:</label>
+                            <input class="w3-input w3-margin-bottom" type="text" id="id_zone" value="MyZone">
+
+                            <button class="button w3-margin-top" onclick="drawZone()">Draw Zone</button>
+                        </div>
+
+                    </div>
+
+                    <!-- MOC OPERATIONS PANEL -->
+                    <div class="tab-noshadow w3-margin-top w3-border w3-border-teal w3-round-large"
+                        style="padding: 1em; background: white;">
+
+                        <p class="label"><strong>MOC Operations:</strong></p>
+
+                        <label>Left MOC:</label>
+                        <select class="w3-select w3-border w3-margin-bottom" id="plane_left">
+                            <option value="">Select MOC</option>
+                        </select>
+
+                        <label>Right MOC:</label>
+                        <select class="w3-select w3-border w3-margin-bottom" id="plane_right">
+                            <option value="">Select MOC</option>
+                        </select>
+
+                        <div style="display:flex; flex-wrap:wrap; gap:0.5em; margin-top:0.5em;">
+                            <button class="button" onclick="unionOperation()">∪ Union</button>
+                            <button class="button" onclick="intersectionOperation()">∩ Intersection</button>
+                            <button class="button" onclick="comingSoon('Symmetric Difference')">△ Sym. Diff.</button>
+                            <button class="button" onclick="comingSoon('Subtraction')">∖ Subtraction</button>
+
+                            <script>
+                                function comingSoon(feature) {
+                                    alert(feature + " will be added soon");
+                                }
+                            </script>
+                        </div>
+
+                    </div>
+
+                    <!-- TRANSIENT CHECK PANEL -->
+                    <div class="tab-noshadow w3-margin-top w3-border w3-border-teal w3-round-large"
+                        style="padding: 1em; background: white;">
+
+                        <p class="label"><strong>Check Transient Position:</strong></p>
+                        <p style="font-size: 0.8em; color: #555; margin-top: -0.5em;">
+                            Verify if a sky position falls inside a MOC region.
+                        </p>
+
+                        <label style="font-weight: bold;">Select MOC:</label>
+                        <select class="w3-select w3-border w3-margin-bottom" id="transient_moc_select">
+                            <option value="">Select MOC</option>
+                        </select>
+
+                        <label for="transient_ra">RA (deg):</label>
+                        <input class="w3-input w3-margin-bottom" type="number" id="transient_ra"
+                            placeholder="e.g. 197.45" step="any">
+
+                        <label for="transient_dec">DEC (deg):</label>
+                        <input class="w3-input w3-margin-bottom" type="number" id="transient_dec"
+                            placeholder="e.g. -23.38" step="any">
+
+                        <label for="transient_name">Name (optional):</label>
+                        <input class="w3-input w3-margin-bottom" type="text" id="transient_name"
+                            placeholder="e.g. AT2025ulz" value="">
+
+                        <button class="button w3-margin-top" onclick="checkTransient()">🔍 Check Position</button>
+
+                        <div id="transientResultBox"
+                            style="display:none; margin-top:0.8em; padding:0.6em; border-radius:4px; font-size:0.85em;">
+                        </div>
+                    </div>
+
+                    <!-- TEXTUAL MOC PANEL -->
+                    <div class="tab-noshadow w3-margin-top w3-border w3-border-teal w3-round-large"
+                        style="padding: 1em; background: white;">
+
+                        <p class="label"><strong>Create/Load a Textual MOC:</strong></p>
+                        <p style="font-size: 0.8em; color: #555; margin-top: -0.5em;">
+                            Enrich a MOC with text and metadata
+                            following <a href="https://doi.org/10.1016/j.ascom.2025.101014" target="_blank">Greco et al.
+                                (2026)</a>.
+                        </p>
+
+                        <label style="font-weight: bold;">Select MOC:</label>
+                        <select class="w3-select w3-border w3-margin-bottom" id="tmoc_select">
+                            <option value="">Select MOC</option>
+                        </select>
+
+                        <label for="tmoc_text" style="font-weight: bold;">Text:</label>
+
+                        <label for="tmoc_text" style="font-weight: bold;">Text:</label>
+                        <textarea id="tmoc_text" class="w3-input w3-border w3-margin-bottom" rows="5"
+                            placeholder="Enter a textual description, e.g. a GCN Circular or observational notes..."></textarea>
+
+                        <label style="font-weight: bold;">Metadata:</label>
+                        <div id="tmoc_metadata_rows">
+                            <div class="tmoc-meta-row" style="display:flex; gap:0.5em; margin-bottom:0.4em;">
+                                <input class="w3-input tmoc-meta-key" type="text" placeholder="key (e.g. author)"
+                                    style="width:40%;">
+                                <input class="w3-input tmoc-meta-val" type="text" placeholder="value"
+                                    style="width:50%;">
+                                <button class="button" style="width:10%; padding:0;"
+                                    onclick="this.parentElement.remove()">✕</button>
+                            </div>
+                        </div>
+                        <button class="button w3-margin-bottom" style="font-size:0.85em;" onclick="addMetadataRow()">+
+                            Add metadata</button>
+
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <button class="button w3-margin-top"
+                                onclick="saveTextualMoc(window.mocRegistry[document.getElementById('tmoc_select').value], document.getElementById('tmoc_select').value || 'textual_moc')">
+                                💾 Save Textual MOC (JSON)
+                            </button>
+
+                            <button class="button" onclick="loadTextualMoc()">
+                                📂 Load Textual MOC (JSON)
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ✅ FOOTER -->
+            <footer class="footer">
+
+                <footer class="gladenet-footer">
+                    <div class="footer-warning">
+                        ⚠️ The app is under testing, and the results should be used with caution ⚠️<br>
+                        <strong>GWsky v0.3.0 dev. Last updated on March, 2026 📅</strong><br>
+                        <a href="https://virgo.pg.infn.it/gladenet/catalogs/changelog.html" target="_blank">📄
+                            Changelog</a>
+                    </div>
+
+                    <div class="footer-cards">
+                        <div class="footer-card">
+                            <h3>🐙 Collaborative GitHub Project</h3>
+                            <p>This project is hosted on GitHub.<br>
+                                <a href="https://github.com/ggreco77/GWsky-Online-Calculator-and-Interactive-Viewer-of-Credible-Areas"
+                                    target="_blank">Explore the repository</a>
+                            </p>
+                        </div>
+                        <div class="footer-card">
+                            <h3>📖 Paper Reference</h3>
+                            <p>GWsky will apper soon.<br>
+                                <a href="" target="_blank">Paper submitted</a>
+                            </p>
+                        </div>
+                        <div class="footer-card">
+                            <h3>🎓 Tutorials</h3>
+                            <p>GWsky tutorials will be published soon 🛠️</p>
+                        </div>
+                    </div>
+
+                    <div class="footer-logos">
+                        <img src="https://virgo.pg.infn.it/maps/ima/INFN_Perugia_logo.png" alt="INFN Perugia" />
+                        <img src="https://virgo.pg.infn.it/maps/ima/Unipg_marchio.png" alt="UNIPG" />
+                    </div>
+
+                    <div class="footer-bottom">
+                        <div style="width: 100%; text-align: center; overflow-x: auto; padding: 1em;">
+                            <a href="https://ahead.iaps.inaf.it/" target="_blank">
+                                <img src="https://virgo.pg.infn.it/maps/ima/ahead2020_ico.jpg" alt="AHEAD2020 Logo"
+                                    style="width: 80%; height: auto; margin-bottom: 1em;">
+                            </a>
+                            <p style="font-size: 1rem; text-align: center; margin: 0 auto;">
+                                The research leading to these results has received funding from the European Union’s
+                                Horizon 2020 Programme under the AHEAD2020 project (grant agreement n. 871158).<br>
+                                📫 Contacts: <a href="mailto:giuseppe.greco@uniurb.it">GWsky email</a>
+                            </p>
+                        </div>
+                    </div>
+
+                </footer>
+                <script type="module" src="./scripts/viewerCatalogs.js"></script>
+                <script type="module" src="./scripts/viewerAlerts.js"></script>
+                <script type="module" src="./scripts/viewerURL.js"></script>
+                <script src="./scripts/draw-box.js" defer></script>
+                <script src="./scripts/draw-circle.js" defer></script>
+                <script src="./scripts/draw-ellipse.js" defer></script>
+                <script src="./scripts/draw-ring.js" defer></script>
+                <script src="./scripts/draw-zone.js" defer></script>
+                <script src="./scripts/read-textual-moc.js" defer></script>
+                <script src="./scripts/draw-operations.js" defer></script>
+                <script src="./scripts/draw-filter.js" defer></script>
+
+</body>
+
+</html>
